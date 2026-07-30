@@ -1,11 +1,27 @@
--- EdgeTX 3-Switch Interactive Map Widget
+-- EdgeTX 3-Switch Interactive Map Widget (Clean Audio Callouts)
 -- Save as: /WIDGETS/swmap/main.lua
 
 local function create(zone, options)
-  return { zone = zone }
+  return {
+    zone = zone,
+    lastSf = nil,
+    lastSc = nil,
+    lastSd = nil
+  }
 end
 
 local function update(widget, newOptions)
+end
+
+-- Helper function to play single or chained audio tracks
+local function playTracks(tracks)
+  if type(tracks) == "table" then
+    for _, track in ipairs(tracks) do
+      playFile(track)
+    end
+  else
+    playFile(tracks)
+  end
 end
 
 local function refresh(widget)
@@ -24,47 +40,57 @@ local function refresh(widget)
   local cyanColor   = lcd.RGB(0, 200, 255)
   local amberColor  = lcd.RGB(255, 170, 0)
 
-  -- Evaluate SF
-  -- Switch: Away/Back = DISARM, Front = ARMED
-  -- Display: Opt 1 = ARMED (Left), Opt 2 = DISARM (Right)
+  -- Evaluate SF (Arm Switch)
   local sfActive = 2 -- Default DISARM (Away/Back)
   if sfVal > 0 then sfActive = 1 end -- Front = ARMED
   local sfOptions = {
-    { text = "[ARMED]",  color = redColor },
-    { text = "[DISARM]", color = greenColor }
+    { text = "[ARMED]",  color = redColor,   sounds = "armed.wav" },
+    { text = "[DISARM]", color = greenColor, sounds = "disarm.wav" }
   }
 
-  -- Evaluate SC
-  -- Switch: Away/Back = 60%, MID = 80%, Front = 100%
-  -- Display: Opt 1 = 100% (Left), Opt 2 = 80% (Mid), Opt 3 = 60% (Right)
+  -- Evaluate SC (Surface Rates - using Rate audio tracks)
   local scActive = 3 -- Default 60% (Away/Back)
   if scVal > 300 then scActive = 1        -- Front = 100%
   elseif scVal > -300 then scActive = 2   -- MID = 80%
   end
   local scOptions = {
-    { text = "[100%]", color = amberColor },
-    { text = "[80%]",  color = cyanColor },
-    { text = "[60%]",  color = cyanColor }
+    { text = "[100%]", color = amberColor, sounds = "rathi.wav" },
+    { text = "[80%]",  color = cyanColor,  sounds = "ratmed.wav" },
+    { text = "[60%]",  color = cyanColor,  sounds = "ratlow.wav" }
   }
 
-  -- Evaluate SD
-  -- Switch: Away/Back = 50%, MID = 80%, Front = 100%
-  -- Display: Opt 1 = 100% (Left), Opt 2 = 80% (Mid), Opt 3 = 50% (Right)
+  -- Evaluate SD (Throttle Rates - using High / Medium / Low audio tracks)
   local sdActive = 3 -- Default 50% (Away/Back)
   if sdVal > 300 then sdActive = 1        -- Front = 100%
   elseif sdVal > -300 then sdActive = 2   -- MID = 80%
   end
   local sdOptions = {
-    { text = "[100%]", color = amberColor },
-    { text = "[80%]",  color = cyanColor },
-    { text = "[50%]",  color = cyanColor }
+    { text = "[100%]", color = amberColor, sounds = "high.wav" },
+    { text = "[80%]",  color = cyanColor,  sounds = "medium.wav" },
+    { text = "[50%]",  color = cyanColor,  sounds = "low.wav" }
   }
+
+  -- Audio Callouts Logic (Plays sound only on state changes)
+  if widget.lastSf ~= nil and widget.lastSf ~= sfActive then
+    playTracks(sfOptions[sfActive].sounds)
+  end
+  widget.lastSf = sfActive
+
+  if widget.lastSc ~= nil and widget.lastSc ~= scActive then
+    playTracks(scOptions[scActive].sounds)
+  end
+  widget.lastSc = scActive
+
+  if widget.lastSd ~= nil and widget.lastSd ~= sdActive then
+    playTracks(sdOptions[sdActive].sounds)
+  end
+  widget.lastSd = sdActive
 
   -- Master Layout
   local rows = {
-    { name = "SF (ARM)",  active = sfActive, opts = sfOptions },
-    { name = "SC (SURF)", active = scActive, opts = scOptions },
-    { name = "SD (THR)",  active = sdActive, opts = sdOptions }
+    { name = "ARM (SF)",  active = sfActive, opts = sfOptions },
+    { name = "SURF (SC)", active = scActive, opts = scOptions },
+    { name = "THR (SD)",  active = sdActive, opts = sdOptions }
   }
 
   local fontFlag = MIDSIZE

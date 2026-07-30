@@ -26,11 +26,14 @@ local function refresh(widget)
   -- Read throttle position across stick name variations and channels
   local rawThr = getValue("thr") or getValue("Thr") or getValue("THR") or getValue("ch3") or getValue("ch1") or -1024
 
-  -- 1. Reset logic via SH (Momentary Pull)
+  -- 1. Reset logic via SH (Momentary Pull) + Audio Callout
   if shVal > 0 then
     if not widget.shPressed then
       widget.activeSeconds = 0
       widget.shPressed = true
+      
+      -- Play "Timer 1 Reset" audio track
+      playFile("timrs1.wav")
     end
   else
     widget.shPressed = false
@@ -47,7 +50,7 @@ local function refresh(widget)
   -- Color Palette
   local headerColor = lcd.RGB(50, 50, 50)     -- Charcoal gray header
   local activeColor = lcd.RGB(0, 255, 0)      -- Green when active/running
-  local idleColor   = lcd.RGB(50, 50, 50)
+  local idleColor   = lcd.RGB(50, 50, 50)     -- Dark charcoal gray when idle/paused
 
   -- Format time MM:SS
   local totalSecs = math.floor(widget.activeSeconds)
@@ -62,7 +65,7 @@ local function refresh(widget)
 
   -- Draw Header Label (Left Aligned)
   lcd.setColor(CUSTOM_COLOR, headerColor)
-  lcd.drawText(z.x + 10, yPos, "FLT TIME", fontFlag + CUSTOM_COLOR)
+  lcd.drawText(z.x + 10, yPos, "FLT TIME (SH)", fontFlag + CUSTOM_COLOR)
 
   -- Draw Timer Value (Right Aligned)
   if isArmed and isThrottleActive then
