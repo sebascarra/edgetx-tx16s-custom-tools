@@ -55,8 +55,8 @@ local function refresh(widget)
   end
   local scOptions = {
     { text = "[100%]", color = amberColor, sounds = "rathi.wav" },
-    { text = "[80%]",  color = cyanColor,  sounds = "ratmed.wav" },
-    { text = "[60%]",  color = cyanColor,  sounds = "ratlow.wav" }
+    { text = "[75%]",  color = cyanColor,  sounds = "ratmed.wav" },
+    { text = "[50%]",  color = cyanColor,  sounds = "ratlow.wav" }
   }
 
   -- Evaluate SD (Throttle Rates - using High / Medium / Low audio tracks)
@@ -66,7 +66,7 @@ local function refresh(widget)
   end
   local sdOptions = {
     { text = "[100%]", color = amberColor, sounds = "high.wav" },
-    { text = "[80%]",  color = cyanColor,  sounds = "medium.wav" },
+    { text = "[75%]",  color = cyanColor,  sounds = "medium.wav" },
     { text = "[50%]",  color = cyanColor,  sounds = "low.wav" }
   }
 
