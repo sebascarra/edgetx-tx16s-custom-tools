@@ -23,8 +23,8 @@ local function refresh(widget)
   local sfVal = getValue("sf") or getValue("SF") or 0 -- > 0 when ARMED (Front)
   local shVal = getValue("sh") or getValue("SH") or 0 -- > 0 when pulled towards you
 
-  -- Read throttle position across stick name variations and channels
-  local rawThr = getValue("thr") or getValue("Thr") or getValue("THR") or getValue("ch3") or getValue("ch1") or -1024
+  -- Read the configured logical throttle input, independent of channel mapping
+  local rawThr = getValue("thr") or -1024
 
   -- 1. Reset logic via SH (Momentary Pull) + Audio Callout
   if shVal > 0 then
